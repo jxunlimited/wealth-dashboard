@@ -1,36 +1,56 @@
 import streamlit as st
 import pandas as pd
-import requests
-from datetime import datetime
 import feedparser
+from datetime import datetime
+import urllib.parse
 
 st.set_page_config(page_title="Wealth Management Trends", layout="wide")
 st.title("📈 Wealth Management Trends Dashboard – USA")
 st.caption("Strategy Dashboard for Financial Services | Built by Virtual BCG/McKinsey")
 
-# ---- KEY TRENDS SECTION ----
+# ---- USER FILTERS ----
+st.sidebar.header("🎯 Filter Trends")
+segment = st.sidebar.selectbox("Client Segment", ["All", "HNW", "Mass Affluent", "Gen Z"])
+theme = st.sidebar.multiselect("Investment Theme", ["ESG", "Digital Wealth", "Alternatives", "AI", "Wealth Transfer"], default=["Digital Wealth"])
+
+# ---- KEY TRENDS (STATIC) ----
 st.header("🔍 Key Trends in U.S. Wealth Management")
+st.markdown("Customized based on selected filters.")
 
-with st.container():
-    if st.button("🔄 Refresh Trends"):
-        st.success("Live insights updated (demo mode).")
+trend_bullets = {
+    "ESG": "🔵 ESG compliance under pressure; Gen Z prioritizes values-aligned investing.",
+    "Digital Wealth": "🟠 Digital onboarding & hybrid robo models growing fastest in mass affluent segments.",
+    "Alternatives": "🟣 Alternatives (private credit, PE, crypto) now 17% of HNW portfolios.",
+    "AI": "🟢 Advisors leveraging AI copilots for planning, risk, and engagement.",
+    "Wealth Transfer": "🟡 $84T in intergenerational wealth transfer is reshaping priorities."
+}
 
-    st.markdown("""
-    - **Direct Indexing** projected to grow 3x by 2027 – BlackRock, Schwab leading.
-    - **AI + Hybrid Advisory** models are mainstream: Vanguard pilots conversational AI.
-    - **Alternative Assets** (private credit, PE, crypto) gain traction: 17% of HNW portfolios.
-    - **Wealth Transfer** from Boomers to Millennials: $84T over 20 years.
-    - **Fee Compression** + Regulation (Reg BI) reshaping margins.
-    """)
+for t in theme:
+    st.markdown(f"- {trend_bullets[t]}")
 
-# ---- LIVE INDUSTRY FEED FROM FINEXTRA ----
-st.header("🔴 Real-Time Industry News (Finextra)")
+# ---- GOOGLE NEWS & PERPLEXITY TREND SEARCH ----
+st.header("🧠 Explore Real-Time Trends (Search Engines)")
+
+search_query = f"{segment if segment != 'All' else ''} wealth management " + " ".join(theme)
+encoded_query = urllib.parse.quote(search_query)
+
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("🔎 Google News")
+    st.markdown(f"[Search Google News for '{search_query}'](https://news.google.com/search?q={encoded_query})", unsafe_allow_html=True)
+
+with col2:
+    st.subheader("🔍 Perplexity (Preview Mode)")
+    st.markdown(f"[Simulate Perplexity Search](https://www.perplexity.ai/search?q={encoded_query})", unsafe_allow_html=True)
+
+# ---- LIVE INDUSTRY NEWS FROM FINEXTRA ----
+st.header("🔴 Real-Time News (Finextra)")
 
 feed_url = "https://www.finextra.com/rss/news.aspx?topic=Wealth%20Management"
 feed = feedparser.parse(feed_url)
 
 if feed.entries:
-    for entry in feed.entries[:5]:  # Limit to 5 headlines
+    for entry in feed.entries[:5]:
         st.markdown(f"🔗 [{entry.title}]({entry.link})  \n<small>{entry.published}</small>", unsafe_allow_html=True)
 else:
     st.warning("Unable to fetch Finextra feed. Try again later.")
@@ -44,7 +64,6 @@ competitors_df = pd.DataFrame({
     "AUM ($B)": [1400, 4100, 8400, 35, 1.2],
     "Digital Maturity (1–5)": [4, 4, 3, 5, 5]
 })
-
 st.dataframe(competitors_df, use_container_width=True)
 
 # ---- MARKET IMPACT VISUALIZATION ----
@@ -67,15 +86,14 @@ with col2:
     st.bar_chart(market_df.set_index("Year")["Advisor Attrition Rate (%)"])
 
 # ---- STRATEGIC RECOMMENDATIONS ----
-st.header("🧭 Strategic Playbook")
+st.header("🧭 Strategy Playbook")
 
 st.markdown("""
-#### For Large Financial Institutions:
-- 🎯 **Digitally empower advisors** with real-time insights, AI co-pilots & mobile CRM.
-- 🤝 **Partner or acquire** fintechs offering personalization or niche AI solutions.
-- 🧠 **Segment HNW vs. mass affluent** with tailored onboarding & communication.
-- 🧬 **Invest in behavioral analytics** to reduce churn and boost wallet share.
-- 🌱 **Lead in ESG transparency** with interactive tools for values-based investing.
+#### Strategic Levers Based on Filters:
+- 📱 Double down on **mobile-first** + AI-enhanced advisor tools.
+- 🤝 Launch partnerships with **fintechs** focused on alternatives or digital advice.
+- 📊 Use **behavioral segmentation** to target Gen Z vs. HNW clients.
+- 🌱 Offer **ESG screening tools** for values-aligned investors.
 """)
 
 # ---- FOOTER ----
