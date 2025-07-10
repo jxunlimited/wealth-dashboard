@@ -80,4 +80,4 @@ st.markdown("""
 
 # ---- FOOTER ----
 st.markdown("---")
-st.caption(f"Dashboard refreshed: {datetime.now().strftime('%B %d, %Y – %I:%M %p')}")
+st.caption(f"Dashboard refreshed: {datetime.now().strftime('%B %d, %Y – %I:%M %p')}"
