@@ -2,17 +2,19 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import datetime
+import feedparser
 
 st.set_page_config(page_title="Wealth Management Trends", layout="wide")
 st.title("📈 Wealth Management Trends Dashboard – USA")
 st.caption("Strategy Dashboard for Financial Services | Built by Virtual BCG/McKinsey")
 
+# ---- KEY TRENDS SECTION ----
 st.header("🔍 Key Trends in U.S. Wealth Management")
 
 with st.container():
     if st.button("🔄 Refresh Trends"):
         st.success("Live insights updated (demo mode).")
-    
+
     st.markdown("""
     - **Direct Indexing** projected to grow 3x by 2027 – BlackRock, Schwab leading.
     - **AI + Hybrid Advisory** models are mainstream: Vanguard pilots conversational AI.
@@ -21,6 +23,19 @@ with st.container():
     - **Fee Compression** + Regulation (Reg BI) reshaping margins.
     """)
 
+# ---- LIVE INDUSTRY FEED FROM FINEXTRA ----
+st.header("🔴 Real-Time Industry News (Finextra)")
+
+feed_url = "https://www.finextra.com/rss/news.aspx?topic=Wealth%20Management"
+feed = feedparser.parse(feed_url)
+
+if feed.entries:
+    for entry in feed.entries[:5]:  # Limit to 5 headlines
+        st.markdown(f"🔗 [{entry.title}]({entry.link})  \n<small>{entry.published}</small>", unsafe_allow_html=True)
+else:
+    st.warning("Unable to fetch Finextra feed. Try again later.")
+
+# ---- COMPETITOR SNAPSHOT ----
 st.header("🏦 Key Competitors Overview")
 
 competitors_df = pd.DataFrame({
@@ -32,6 +47,7 @@ competitors_df = pd.DataFrame({
 
 st.dataframe(competitors_df, use_container_width=True)
 
+# ---- MARKET IMPACT VISUALIZATION ----
 st.header("📊 Market Impact Dashboard")
 
 market_df = pd.DataFrame({
@@ -50,6 +66,7 @@ with col2:
     st.subheader("Advisor Attrition Rate")
     st.bar_chart(market_df.set_index("Year")["Advisor Attrition Rate (%)"])
 
+# ---- STRATEGIC RECOMMENDATIONS ----
 st.header("🧭 Strategic Playbook")
 
 st.markdown("""
@@ -61,5 +78,6 @@ st.markdown("""
 - 🌱 **Lead in ESG transparency** with interactive tools for values-based investing.
 """)
 
+# ---- FOOTER ----
 st.markdown("---")
 st.caption(f"Dashboard refreshed: {datetime.now().strftime('%B %d, %Y – %I:%M %p')}")
